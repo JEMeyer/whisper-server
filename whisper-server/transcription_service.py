@@ -87,3 +87,4 @@ def cleanup_memory(self):
     if torch.cuda.is_available():
         torch.cuda.empty_cache()
     gc.collect()
+    torch.cuda.empty_cache()
