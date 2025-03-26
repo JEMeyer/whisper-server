@@ -82,10 +82,9 @@ class TranscriptionService:
         self.cleanup_memory()
         return outputs
 
-
-def cleanup_memory(self):
-    """Release CUDA memory after transcription"""
-    if torch.cuda.is_available():
+    def cleanup_memory(self):
+        """Release CUDA memory after transcription"""
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        gc.collect()
         torch.cuda.empty_cache()
-    gc.collect()
-    torch.cuda.empty_cache()
