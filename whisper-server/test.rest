@@ -1,12 +1,41 @@
 ### Healthcheck
 GET {{whisperHost}}/health
 
+### Transcribe with automatic language detection
+# This will detect the language and use it for transcription
 curl -X POST {{whisperHost}}/transcribe \
      -F "file=@/path/to/file.wav" \
      -F 'payload={
        "model": "openai/whisper-large-v3",
        "task": "transcribe",
        "language": null,
+       "chunk_length_s": 30,
+       "batch_size": 24,
+       "timestamp": "word"
+     }'
+
+### Transcribe with forced language detection
+# This will detect the language but still use English (or specified language) for transcription
+curl -X POST {{whisperHost}}/transcribe \
+     -F "file=@/path/to/file.wav" \
+     -F 'payload={
+       "model": "openai/whisper-large-v3",
+       "task": "transcribe",
+       "language": "en",
+       "chunk_length_s": 30,
+       "batch_size": 24,
+       "timestamp": "word",
+       "force_language_detection": true
+     }'
+
+### Transcribe with specific language hint
+# This will use the provided language hint for transcription
+curl -X POST {{whisperHost}}/transcribe \
+     -F "file=@/path/to/file.wav" \
+     -F 'payload={
+       "model": "openai/whisper-large-v3",
+       "task": "transcribe",
+       "language": "es",
        "chunk_length_s": 30,
        "batch_size": 24,
        "timestamp": "word"
