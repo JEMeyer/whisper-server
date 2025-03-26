@@ -1,6 +1,6 @@
 # Whisper Server
 
-This project provides a REST API for automatic speech transcription using the [OpenAI Whisper Large V3](https://huggingface.co/openai/whisper-large-v3) model as the primary transcription model.
+This project provides a REST API for automatic speech transcription using the [OpenAI Whisper Large V3 Turbo](https://huggingface.co/openai/whisper-large-v3-turbo) model as the primary transcription model.
 
 ## Technology Stack
 
