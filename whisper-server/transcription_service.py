@@ -29,57 +29,59 @@ def get_pipeline(self, model_name: str):
         self.model_cache[model_name] = model_pipeline
     return self.model_cache[model_name]
 
-    def transcribe_file(
-        self,
+
+def transcribe_file(
+    self,
+    file_path,
+    model_name,
+    task,
+    language,
+    chunk_length_s,
+    batch_size,
+    timestamp,
+):
+    model_pipeline = self.get_pipeline(model_name)
+    generate_kwargs = {"task": task}
+    if language:
+        generate_kwargs["language"] = language
+    ts = "word" if timestamp == "word" else True
+
+    outputs = model_pipeline(
         file_path,
-        model_name,
-        task,
-        language,
-        chunk_length_s,
-        batch_size,
-        timestamp,
-    ):
-        model_pipeline = self.get_pipeline(model_name)
-        generate_kwargs = {"task": task}
-        if language:
-            generate_kwargs["language"] = language
-        ts = "word" if timestamp == "word" else True
+        chunk_length_s=chunk_length_s,
+        batch_size=batch_size,
+        generate_kwargs=generate_kwargs,
+        return_timestamps=ts,
+    )
+    self.cleanup_memory()
+    return outputs
 
-        outputs = model_pipeline(
-            file_path,
-            chunk_length_s=chunk_length_s,
-            batch_size=batch_size,
-            generate_kwargs=generate_kwargs,
-            return_timestamps=ts,
-        )
-        self.cleanup_memory()
-        return outputs
 
-    def transcribe_stream(
-        self,
+def transcribe_stream(
+    self,
+    audio_buffer,
+    model_name,
+    task,
+    language,
+    chunk_length_s,
+    batch_size,
+    timestamp,
+):
+    model_pipeline = self.get_pipeline(model_name)
+    generate_kwargs = {"task": task}
+    if language:
+        generate_kwargs["language"] = language
+    ts = "word" if timestamp == "word" else True
+
+    outputs = model_pipeline(
         audio_buffer,
-        model_name,
-        task,
-        language,
-        chunk_length_s,
-        batch_size,
-        timestamp,
-    ):
-        model_pipeline = self.get_pipeline(model_name)
-        generate_kwargs = {"task": task}
-        if language:
-            generate_kwargs["language"] = language
-        ts = "word" if timestamp == "word" else True
-
-        outputs = model_pipeline(
-            audio_buffer,
-            chunk_length_s=chunk_length_s,
-            batch_size=batch_size,
-            generate_kwargs=generate_kwargs,
-            return_timestamps=ts,
-        )
-        self.cleanup_memory()
-        return outputs
+        chunk_length_s=chunk_length_s,
+        batch_size=batch_size,
+        generate_kwargs=generate_kwargs,
+        return_timestamps=ts,
+    )
+    self.cleanup_memory()
+    return outputs
 
 
 def cleanup_memory(self):
