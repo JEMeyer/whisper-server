@@ -23,7 +23,7 @@ class TranscriptionRequest(BaseModel):
     task: str = "transcribe"
     language: str = None
     chunk_length_s: int = 30
-    batch_size: int = 24
+    batch_size: int = 8
     timestamp: str = "word"
 
 
@@ -47,7 +47,7 @@ async def transcribe(file: UploadFile = File(...), payload: str = Form(...)):
         task = params.get("task", "transcribe")
         language = params.get("language")
         chunk_length_s = params.get("chunk_length_s", 30)
-        batch_size = params.get("batch_size", 24)
+        batch_size = params.get("batch_size", 8)
         timestamp = params.get("timestamp", "word")
 
         contents = await file.read()
@@ -78,7 +78,7 @@ async def transcribe_stream(
     task: str = Form("transcribe"),
     language: str = Form(None),
     chunk_length_s: int = Form(30),
-    batch_size: int = Form(24),
+    batch_size: int = Form(8),
     timestamp: str = Form("word"),
 ):
     try:
