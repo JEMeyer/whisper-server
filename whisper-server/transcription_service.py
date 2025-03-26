@@ -1,13 +1,18 @@
+# transcription_service.py
 import torch
+import ray
 from transformers import pipeline
 from transformers.utils import is_flash_attn_2_available
-
 from typing import Dict
 
+# Initialize connection to Ray cluster
+=ray.init(address="ray://192.168.1.65:10001")  # Use your head node IP
 
-class TranscriptionService:
+# Define a remote function for transcription
+@ray.remote(num_gpus=1)  # Request 1 GPU
+class RayTranscriptionService:
     def __init__(self):
-        self.device = "cuda:0" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model_cache: Dict[str, pipeline] = {}
 
     def get_pipeline(self, model_name: str):
@@ -76,3 +81,24 @@ class TranscriptionService:
             return_timestamps=ts,
         )
         return outputs
+
+
+# Wrapper class for local API interactions
+class TranscriptionService:
+    def __init__(self):
+        # Create an actor pool to handle concurrent requests across the cluster
+        self.services = [RayTranscriptionService.remote() for _ in range(7)]  # Up to 7 concurrent services
+        self.next_service_idx = 0
+
+    def _get_next_service(self):
+        service = self.services[self.next_service_idx]
+        self.next_service_idx = (self.next_service_idx + 1) % len(self.services)
+        return service
+
+    def transcribe_file(self, *args, **kwargs):
+        service = self._get_next_service()
+        return ray.get(service.transcribe_file.remote(*args, **kwargs))
+
+    def transcribe_stream(self, *args, **kwargs):
+        service = self._get_next_service()
+        return ray.get(service.transcribe_stream.remote(*args, **kwargs))
